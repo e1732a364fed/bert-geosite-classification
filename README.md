@@ -1,6 +1,6 @@
-# geosite-gfw
+# Bert-Geosite-Classification
 
-本项目是一个机器学习训练http内容二分类的pytorch 项目。
+本项目是一个机器学习训练http内容二分类(Binary Classification)的pytorch 项目。
 
 先利用 geosite 的网站列表下载数据，然后用 bert 微调的方式训练模型。
 
