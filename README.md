@@ -120,7 +120,7 @@ mac上测试内存占用325.8MB
 ```bash
 curl -X POST http://localhost:5134/predict \
     -H "Content-Type: application/json" \
-    -d '{"text": "your website http response body", "model_name": "body"}'
+    -d '{"text": "<body>your website http response body</body>", "model_name": "body"}'
 ```
 
 

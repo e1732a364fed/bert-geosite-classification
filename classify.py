@@ -242,7 +242,7 @@ def evaluate(model, data_loader):
 
 
 # 预测函数（统一用于 API 和命令行模式）
-def predict_text(text, model, tokenizer, max_len):
+def predict_text(text, model, tokenizer, max_len, device=DEVICE):
     encoding = tokenizer.encode_plus(
         text,
         add_special_tokens=True,
@@ -253,8 +253,8 @@ def predict_text(text, model, tokenizer, max_len):
         return_tensors="pt",
     )
 
-    input_ids = encoding["input_ids"].to(DEVICE)
-    attention_mask = encoding["attention_mask"].to(DEVICE)
+    input_ids = encoding["input_ids"].to(device)
+    attention_mask = encoding["attention_mask"].to(device)
 
     with torch.no_grad():
         outputs = model(input_ids, attention_mask=attention_mask)
