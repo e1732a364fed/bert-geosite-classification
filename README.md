@@ -6,18 +6,13 @@
 
 提供了 用于 识别的 api。
 
-模型下载地址在
-https://huggingface.co/e1732a364fed/geosite-gfw/tree/main
+git clone 下面两个模型
 
-下载两个zip文件后解压到 项目中即可
+https://huggingface.co/e1732a364fed/bert-geosite-classification-head-v1/tree/main
 
-```sh
-curl -LO "https://huggingface.co/e1732a364fed/geosite-gfw/resolve/main/bert_geosite_by_body.zip?download=true"
-curl -LO "https://huggingface.co/e1732a364fed/geosite-gfw/resolve/main/bert_geosite_by_head.zip?download=true"
+https://huggingface.co/e1732a364fed/bert-geosite-classification-body-v1/tree/main
 
-tar -xf bert_geosite_by_body.zip
-tar -xf bert_geosite_by_head.zip
-```
+然后对文件夹分别改名为 bert_geosite_by_body 和 bert_geosite_by_head。
 
 下载好模型后就可直接跳到下面第三步进行预测了
 
