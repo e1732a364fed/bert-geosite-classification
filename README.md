@@ -9,6 +9,8 @@
 模型下载地址在
 https://huggingface.co/e1732a364fed/geosite-gfw/tree/main
 
+下载两个zip文件后解压到 项目中即可
+
 下载好模型后就可直接跳到下面第三步进行预测了
 
 本项目已在 [ruci](https://github.com/e1732a364fed/ruci) 代理项目中使用
@@ -59,14 +61,14 @@ You can download pretrained model files instead of training own your own.
 
 ## 4. serve api with
 
-python classify.py --mode serve_api --port 5000
+python classify.py --mode serve_api --port 5134
 
 ## 5. request
 
 ### predict by passing the data
 
 ```bash
-curl -X POST http://localhost:5000/predict \
+curl -X POST http://localhost:5134/predict \
     -H "Content-Type: application/json" \
     -d '{"text": "your website http response body", "model_name": "body"}'
 ```
@@ -90,7 +92,7 @@ or
 ## check by passing the domain
 
 ```bash
-curl -X POST http://localhost:5000/check \
+curl -X POST http://localhost:5134/check \
     -H "Content-Type: application/json" \
     -d '{"domain": "www.baidu.com"}'
 ```
