@@ -22,7 +22,11 @@ import threading
 from queue import Queue
 
 CACHE_FILE = "samples.pkl"
-DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+DEVICE = torch.device(
+    "cuda"
+    if torch.cuda.is_available()
+    else "mps" if torch.mps.is_available() else "cpu"
+)
 HEAD_MAX_LEN = 512
 BODY_MAX_LEN = 512
 BATCH_SIZE = 16
@@ -258,7 +262,7 @@ def predict_text(text, model, tokenizer, max_len, device=DEVICE):
 
     with torch.no_grad():
         outputs = model(input_ids, attention_mask=attention_mask)
-        print("outputs", outputs)
+        # print("outputs", outputs)
         logits = outputs.logits.cpu().numpy()
         pred = np.argmax(logits, axis=1)[0]
 

@@ -3,14 +3,15 @@ import torch
 from classify import predict_text
 
 # Sample text for testing
-sample_text = "<body>google</body>"
+sample_text = "<body>googlegooglegooglegooglegooglegooglegooglegooglegooglegooglegooglegooglegooglegooglegooglegooglegooglegooglegooglegooglegooglegooglegooglegoogle</body>"
 
 BERT = "./bert_geosite_by_body/"
 
 
 def benchmark_classification(device_type):
-    """Run classification on the specified device and return execution time."""
+    """Run classification on the specified device and return average execution time over 100 runs."""
     current_device = torch.device(device_type)
+    print("running benchmark for ", device_type)
 
     from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
@@ -19,14 +20,21 @@ def benchmark_classification(device_type):
         current_device
     )
 
-    start_time = time.time()
+    total_time = 0.0
 
-    result = predict_text(sample_text, model, tokenizer, 512, current_device)
+    # Run the test 100 times and calculate average execution time
+    for _ in range(100):
+        start_time = time.time()
 
-    end_time = time.time()
-    execution_time = end_time - start_time
+        result = predict_text(sample_text, model, tokenizer, 512, current_device)
 
-    return execution_time, result
+        end_time = time.time()
+        execution_time = end_time - start_time
+        total_time += execution_time
+
+    average_time = total_time / 100
+
+    return average_time, result
 
 
 def main():

@@ -158,3 +158,8 @@ curl -X POST http://localhost:5134/check \
 
 1. for more arguments and options, see the source code
 
+# benchmark
+
+there's a benchmark.py that benches cpu and mps. 
+On macOS, mps is way faster than cpu.
+run `python benchmark.py` to see how fast it is on your mac.
