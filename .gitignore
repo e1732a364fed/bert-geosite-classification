@@ -6,3 +6,4 @@ pyproject.toml
 china-list_out
 proxy-list_out
 __pycache__/
+.DS_Store

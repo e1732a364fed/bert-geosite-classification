@@ -79,6 +79,9 @@ it will generate the trained model file.
 
 you can set the ok and ban dir by --ok_dir and --ban_dir
 
+You can download pretrained model files instead of training own your own.
+
+
 ## 3. predict with
 
 ```sh
@@ -99,7 +102,6 @@ python classify.py --mode predict_body --text "<body>porn</body>"
 python classify.py --mode predict_body --text "<body>baidu</body>"
 ```
 
-You can download pretrained model files instead of training own your own.
 
 
 
@@ -109,7 +111,7 @@ You can download pretrained model files instead of training own your own.
 python classify.py --mode serve_api --port 5134
 ```
 
-mac上测试内存占用325.8MB
+mac上测试, 内存占用325.8MB
 
 
 
