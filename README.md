@@ -11,6 +11,14 @@ https://huggingface.co/e1732a364fed/geosite-gfw/tree/main
 
 下载两个zip文件后解压到 项目中即可
 
+```sh
+curl -LO "https://huggingface.co/e1732a364fed/geosite-gfw/resolve/main/bert_geosite_by_body.zip?download=true"
+curl -LO "https://huggingface.co/e1732a364fed/geosite-gfw/resolve/main/bert_geosite_by_head.zip?download=true"
+
+tar -xf bert_geosite_by_body.zip
+tar -xf bert_geosite_by_head.zip
+```
+
 下载好模型后就可直接跳到下面第三步进行预测了
 
 本项目已在 [ruci](https://github.com/e1732a364fed/ruci) 代理项目中使用
