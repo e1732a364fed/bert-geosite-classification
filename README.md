@@ -21,7 +21,7 @@ tar -xf bert_geosite_by_head.zip
 
 下载好模型后就可直接跳到下面第三步进行预测了
 
-本项目已在 [ruci](https://github.com/e1732a364fed/ruci) 代理项目中使用
+本项目已在 [ruci](https://github.com/e1732a364fed/ruci) 代理项目中使用 :[geosite_gfw](https://e1732a364fed.github.io/ruci/lua/route_config.html#geosite_gfw)
 
 # Steps
 
