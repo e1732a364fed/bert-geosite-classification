@@ -27,7 +27,7 @@ tar -xf bert_geosite_by_head.zip
 
 0. install requirements
 
-```
+```sh
 pip install transformers numpy scikit-learn flask requests
 pip install torch --index-url https://download.pytorch.org/whl/cu124
 ```
@@ -36,6 +36,19 @@ download `bert-base-multilingual-cased` from huggingface, store the files in ./b
 
 if you are not using nvidia gpu, you may obmit the  --index-url parameter.
 
+或者直接使用
+
+```sh
+pip3 install -r requirements.txt
+```
+
+
+如果您想用 venv, 就先运行如下命令再安
+
+```sh
+python3 -m venv venv
+source venv/bin/activate
+```
 
 ## 1. pull geosite response with `python pull.py`
 
@@ -48,7 +61,7 @@ but maybe dated. You can use your own list file.
 
 ## 2. train model with
 
-```
+```sh
 python classify.py --mode=train_head
 python classify.py --mode=train_body
 ```
@@ -59,7 +72,7 @@ you can set the ok and ban dir by --ok_dir and --ban_dir
 
 ## 3. predict with
 
-```
+```sh
 python classify.py --mode predict_head --text "Your input text here"
 python classify.py --mode predict_body --text "Your input text here"
 ```
@@ -69,7 +82,11 @@ You can download pretrained model files instead of training own your own.
 
 ## 4. serve api with
 
+```sh
 python classify.py --mode serve_api --port 5134
+```
+
+mac上测试内存占用325.8MB
 
 ## 5. request
 

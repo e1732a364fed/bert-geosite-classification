@@ -1,3 +1,4 @@
 bert_geosite_by_body/
 bert_geosite_by_head/
 cache.db
+venv/
