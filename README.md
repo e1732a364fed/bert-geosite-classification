@@ -39,25 +39,33 @@ if you are not using nvidia gpu, you may obmit the  --index-url parameter.
 或者直接使用
 
 ```sh
-pip3 install -r requirements.txt
+uv venv
+source .venv/bin/activate
+uv pip install -r requirements.txt
 ```
 
+(生成 requirements.txt 的命令是 uv pip freeze > requirements.txt)
 
-如果您想用 venv, 就先运行如下命令再安
+如果您想用 venv 而不是uv, 就是运行如下命令
 
 ```sh
 python3 -m venv venv
 source venv/bin/activate
+pip3 install -r requirements.txt
 ```
 
-## 1. pull geosite response with `python pull.py`
 
-you can set the read list by `python pull.py -l proxy-list.txt`
+## 1. pull geosite responses data with `python pull.py`
 
-the project contains 2 list from 
+or you can set the geosite list by `python pull.py -l proxy-list.txt`
+
+the project contains 2 geosite list from 
 https://github.com/Loyalsoldier/v2ray-rules-dat
 
 but maybe dated. You can use your own list file.
+
+会生成 {list_name}_out 文件夹, 里面为每一个网站的响应
+
 
 ## 2. train model with
 

@@ -2,3 +2,6 @@ bert_geosite_by_body/
 bert_geosite_by_head/
 cache.db
 venv/
+pyproject.toml
+china-list_out
+proxy-list_out
