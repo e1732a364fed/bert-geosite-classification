@@ -29,6 +29,7 @@ tar -xf bert_geosite_by_head.zip
 
 ```sh
 pip install transformers numpy scikit-learn flask requests
+pip install "requests[socks]"
 pip install torch --index-url https://download.pytorch.org/whl/cu124
 ```
 
@@ -85,7 +86,21 @@ python classify.py --mode predict_head --text "Your input text here"
 python classify.py --mode predict_body --text "Your input text here"
 ```
 
+
+for example, 
+```sh
+# this well return Prediction: ban
+python classify.py --mode predict_body --text "<body>google</body>"
+
+# this well return Prediction: ban
+python classify.py --mode predict_body --text "<body>porn</body>"
+
+# this well return Prediction: ok
+python classify.py --mode predict_body --text "<body>baidu</body>"
+```
+
 You can download pretrained model files instead of training own your own.
+
 
 
 ## 4. serve api with
@@ -95,6 +110,8 @@ python classify.py --mode serve_api --port 5134
 ```
 
 mac上测试内存占用325.8MB
+
+
 
 ## 5. request
 
@@ -129,6 +146,15 @@ curl -X POST http://localhost:5134/check \
     -H "Content-Type: application/json" \
     -d '{"domain": "www.baidu.com"}'
 ```
+
+with proxy:
+```bash
+curl -X POST http://localhost:5134/check \
+    -H "Content-Type: application/json" \
+    -d '{"domain": "www.google.com", "socks5_proxy": "127.0.0.1:10800"}'
+```
+
+
 
 1. for more arguments and options, see the source code
 
