@@ -22,11 +22,7 @@ import threading
 from queue import Queue
 
 CACHE_FILE = "samples.pkl"
-DEVICE = torch.device(
-    "cuda"
-    if torch.cuda.is_available()
-    else "mps" if torch.mps.is_available() else "cpu"
-)
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 HEAD_MAX_LEN = 512
 BODY_MAX_LEN = 512
 BATCH_SIZE = 16
