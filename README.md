@@ -1,5 +1,20 @@
 # geosite-gfw
 
+本项目是一个机器学习训练http内容二分类的pytorch 项目。
+
+先利用 geosite 的网站列表下载数据，然后用 bert 微调的方式训练模型。
+
+提供了 用于 识别的 api。
+
+模型下载地址在
+https://huggingface.co/e1732a364fed/geosite-gfw/tree/main
+
+下载好模型后就可直接跳到下面第三步进行预测了
+
+本项目已在 [ruci](https://github.com/e1732a364fed/ruci) 代理项目中使用
+
+# Steps
+
 0. install requirements
 
 ```
