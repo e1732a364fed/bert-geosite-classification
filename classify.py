@@ -370,6 +370,26 @@ def start_api_service(ip, port, model_type, load_method):
     
     init_db()  # 确保数据库表存在
 
+    @app.route('/predict', methods=['POST'])
+    def predict():
+        data = request.get_json()
+        text = data.get('text', '')
+        model_name = data.get('model_name', 'head')
+
+        if model_name not in ['head', 'body']:
+            return jsonify({'error': 'Invalid model_type. Use "head" or "body".'}), 400
+
+        if model_name == "body":
+            text = extract_body_text_by_string(text)
+
+        model = head_model if model_name == 'head' else body_model
+        tokenizer = head_tokenizer if model_name == 'head' else body_tokenizer
+
+        max_len = HEAD_MAX_LEN if model_name == 'head' else BODY_MAX_LEN
+
+        result = predict_text(text, model, tokenizer, max_len)
+        return jsonify({'result': result})
+
     @app.route('/check', methods=['POST'])
     def check():
         data = request.json
