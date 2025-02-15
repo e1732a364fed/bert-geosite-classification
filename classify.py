@@ -298,7 +298,48 @@ def train_body_model(ok_dir, ban_dir, model_type):
     train_model_pipeline(ok_dir, ban_dir, model_type, BODY_MAX_LEN, 'body')
 
 
-# API服务函数
+# it's in standard library
+import sqlite3
+
+# 初始化 SQLite 数据库
+def init_db():
+    conn = sqlite3.connect("cache.db")
+    cursor = conn.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS domain_predictions (
+            domain TEXT PRIMARY KEY,
+            head_prediction TEXT,
+            body_prediction TEXT
+        )
+    """)
+    conn.commit()
+    conn.close()
+
+
+
+def get_cache(domain):
+    conn = sqlite3.connect("cache.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT head_prediction, body_prediction FROM domain_predictions WHERE domain=?", (domain,))
+    row = cursor.fetchone()
+    conn.close()
+    if row:
+        return {"head_prediction": row[0], "body_prediction": row[1]}
+    return None
+
+def set_cache(domain, head_prediction, body_prediction):
+    conn = sqlite3.connect("cache.db")
+    cursor = conn.cursor()
+    cursor.execute("""
+        INSERT INTO domain_predictions (domain, head_prediction, body_prediction)
+        VALUES (?, ?, ?)
+        ON CONFLICT(domain) DO UPDATE SET
+            head_prediction=excluded.head_prediction,
+            body_prediction=excluded.body_prediction
+    """, (domain, head_prediction, body_prediction))
+    conn.commit()
+    conn.close()
+
 def start_api_service(ip, port, model_type, load_method):
     app = Flask(__name__)
 
@@ -310,94 +351,97 @@ def start_api_service(ip, port, model_type, load_method):
     if load_method == 'state_dict':
         head_tokenizer = tokenizer_cls.from_pretrained(model_dir)
         body_tokenizer = tokenizer_cls.from_pretrained(model_dir)
-
         head_model = model_cls.from_pretrained(model_dir, num_labels=2).to(DEVICE)
         body_model = model_cls.from_pretrained(model_dir, num_labels=2).to(DEVICE)
     
-        model_paths = {
-            "head": "best_head_model.bin",
-            "body": "best_body_model.bin"
-        }
+        model_paths = {"head": "best_head_model.bin", "body": "best_body_model.bin"}
         head_model.load_state_dict(torch.load(model_paths["head"]))
         body_model.load_state_dict(torch.load(model_paths["body"]))
     elif load_method == 'pretrained':
-        head_model_path = f"{model_type}_geosite_by_head"
-        body_model_path = f"{model_type}_geosite_by_body"
-        head_tokenizer = tokenizer_cls.from_pretrained(head_model_path)
-        body_tokenizer = tokenizer_cls.from_pretrained(body_model_path)
-        head_model = model_cls.from_pretrained(head_model_path).to(DEVICE)
-        body_model = model_cls.from_pretrained(body_model_path).to(DEVICE)    
-    
+        head_tokenizer = tokenizer_cls.from_pretrained(f"{model_type}_geosite_by_head")
+        body_tokenizer = tokenizer_cls.from_pretrained(f"{model_type}_geosite_by_body")
+        head_model = model_cls.from_pretrained(f"{model_type}_geosite_by_head").to(DEVICE)
+        body_model = model_cls.from_pretrained(f"{model_type}_geosite_by_body").to(DEVICE)
     else:
         raise ValueError(f"Invalid load_method: {load_method}. Use 'state_dict' or 'pretrained'.")
 
-
     head_model.eval()
     body_model.eval()
-
-    @app.route('/predict', methods=['POST'])
-    def predict():
-        data = request.get_json()
-        text = data.get('text', '')
-        model_name = data.get('model_name', 'head')
-
-        if model_name not in ['head', 'body']:
-            return jsonify({'error': 'Invalid model_type. Use "head" or "body".'}), 400
-        
-        if model_name == "body":
-            text = extract_body_text_by_string(text)
-
-        model = head_model if model_name == 'head' else body_model
-        tokenizer = head_tokenizer if model_name == 'head' else body_tokenizer
-
-        max_len = HEAD_MAX_LEN if model_name == 'head' else BODY_MAX_LEN
-
-        result = predict_text(text, model, tokenizer, max_len)
-        return jsonify({'result': result})
     
+    init_db()  # 确保数据库表存在
+
     @app.route('/check', methods=['POST'])
     def check():
         data = request.json
         domain = data.get('domain')
-        
+        socks5_proxy = data.get('socks5_proxy')
+        only_proxy = data.get('only_proxy', False)
+
         if not domain:
             return jsonify({'error': 'Domain is required'}), 400
 
-        proxies = None
-        socks5_proxy = data.get('socks5_proxy')
-        if socks5_proxy:
-            proxies = {
-                'http': f'socks5://{socks5_proxy}',
-                'https': f'socks5://{socks5_proxy}'
-            }
-
-        try:
-            headers = {
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"
-            }
-            response = requests.get(f"https://{domain}",headers=headers, proxies=proxies, timeout=4)
-            response.raise_for_status()  # 检查请求是否成功
-            
-            h_text = []
-
-            for key, value in response.headers.items():
-                h_text.append(f"{key}: {value}")
-
-            head_text = "\n".join(h_text)
-            body_text = response.text
-            body_text = extract_body_text_by_string(body_text)
-
-            head_result = predict_text(head_text, head_model, head_tokenizer, HEAD_MAX_LEN)
-            body_result = predict_text(body_text, body_model, body_tokenizer, BODY_MAX_LEN)
-
+        # 1. 查询缓存
+        cached_result = get_cache(domain)
+        if cached_result:
             return jsonify({
                 'domain': domain,
-                'head_prediction': head_result,
-                'body_prediction': body_result
+                'head_prediction': cached_result['head_prediction'],
+                'body_prediction': cached_result['body_prediction'],
+                'cached': True
             })
 
-        except requests.exceptions.RequestException as e:
-            return jsonify({'error': f'Request failed: {str(e)}'}), 500
+        headers = {
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0.2 Mobile/15E148 Safari/604.1",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+            "Accept-Encoding": "gzip, deflate, br, zstd",
+            "Accept-Language": "zh-CN,zh;q=0.9",
+            "Cache-Control": "max-age=0",
+            "Connection": "keep-alive"
+        }
+
+        def fetch(proxies=None):
+            try:
+                response = requests.get(f"https://{domain}", headers=headers, proxies=proxies, timeout=4)
+                if not response.text:
+                    response.raise_for_status()
+                return response
+            except requests.exceptions.RequestException as e:
+                return str(e)
+
+        # 2. 进行请求
+        result = None
+        if only_proxy:
+            if not socks5_proxy:
+                return jsonify({'error': 'socks5_proxy is required when only_proxy=True'}), 400
+            proxies = {'http': f'socks5://{socks5_proxy}', 'https': f'socks5://{socks5_proxy}'}
+            result = fetch(proxies)
+        else:
+            result = fetch()
+            if isinstance(result, str) and socks5_proxy:
+                proxies = {'http': f'socks5://{socks5_proxy}', 'https': f'socks5://{socks5_proxy}'}
+                result = fetch(proxies)
+
+        if isinstance(result, str):
+            return jsonify({'error': f'Request failed: {result}'}), 500
+
+        response = result
+        h_text = [f"{key}: {value}" for key, value in response.headers.items()]
+        head_text = "\n".join(h_text)
+        body_text = extract_body_text_by_string(response.text)
+
+        # 3. 进行预测
+        head_result = predict_text(head_text, head_model, head_tokenizer, HEAD_MAX_LEN)
+        body_result = predict_text(body_text, body_model, body_tokenizer, BODY_MAX_LEN)
+
+        # 4. 缓存结果
+        set_cache(domain, head_result, body_result)
+
+        return jsonify({
+            'domain': domain,
+            'head_prediction': head_result,
+            'body_prediction': body_result,
+            'cached': False
+        })
 
     print(f"Starting API service on port {port}...")
     app.run(host=ip, port=port)

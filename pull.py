@@ -43,7 +43,12 @@ def process_domain(output_dir, domain):
     urls = [f"https://{domain}", f"https://www.{domain}", f"http://{domain}", f"http://www.{domain}"] if not isfull else [f"https://{domain}", f"http://{domain}"]
     
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"
+        "User Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0.2 Mobile/15E148 Safari/604.1",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+        "Accept-Encoding": "gzip, deflate, br, zstd",
+        "Accept-Language": "zh-CN,zh;q=0.9",
+        "Cache-Control": "max-age=0",
+        "Connection": "keep-alive"
     }
     for url in urls:
         try:
@@ -83,7 +88,6 @@ def main(list_file, output_dir):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Fetch HTTP responses for a list of domains.")
-    #parser.add_argument('-l', '--list-file', default='proxy-list.txt', help='Path to the list file containing domains.')
     parser.add_argument('-l', '--list-file', default='china-list.txt', help='Path to the list file containing domains.')
     args = parser.parse_args()
 
