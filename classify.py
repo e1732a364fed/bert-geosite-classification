@@ -423,10 +423,13 @@ def start_api_service(ip, port, model_type, load_method):
             try:
                 response = requests.get(f"https://{domain}", headers=headers, proxies=proxies, timeout=4)
                 if not response.text:
-                    response.raise_for_status()
+                    response = requests.get(f"http://{domain}", headers=headers, proxies=proxies, timeout=2)
+                    if not response.text:
+                        response.raise_for_status()
+                    return response
                 return response
             except requests.exceptions.RequestException as e:
-                return str(e)
+                return "fetch err: "+ str(e)
 
         # 2. 进行请求
         result = None
